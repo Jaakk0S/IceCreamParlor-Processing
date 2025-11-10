@@ -1,26 +1,16 @@
 common:
   status_queue: order_status
-  status_username: producer
-  status_password: producer
 
 preparation:
   read_queue: placed_orders
-  read_username: consumer
-  read_password: consumer
   write_queue: prepared_orders
-  write_username: producer
-  write_password: producer
   delay_min: 1
   delay_max: 30
   logfile: log/preparation.log
 
 delivery:
   read_queue: prepared_orders
-  read_username: consumer
-  read_password: consumer
   write_queue: 
-  write_username: producer
-  write_password: producer
   delay_min: 1
   delay_max: 30
   logfile: log/delivery.log

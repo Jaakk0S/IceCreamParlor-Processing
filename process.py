@@ -1,25 +1,37 @@
 #!/usr/bin/env python
 import pika, sys, os, yaml, logging, time, random
 from pathlib import Path
+from dotenv import load_dotenv
 
 def main():
     profile = sys.argv[1]
+    
+    if not os.path.exists('.env'):
+        print("Please create a .env file (use the template)")
+        exit(1)
+    load_dotenv()
+
+    rabbitmq_username = os.getenv('rabbitmq_username')
+    rabbitmq_password = os.getenv('rabbitmq_password')
+    if not rabbitmq_password or rabbitmq_username:
+        print("Please set rabbitmq_username and rabbitmq_password in .env")
+        exit(1)
 
     with open('config.yaml') as f:
         config = yaml.safe_load(f)
 
     consumeConnection = pika.BlockingConnection(pika.ConnectionParameters(
         host='localhost', credentials=pika.PlainCredentials(
-            username=config[profile]['read_username'],
-            password=config[profile]['read_password'])
+            username=rabbitmq_username,
+            password=rabbitmq_password)
         )
     )
     consumeChannel = consumeConnection.channel()  
 
     produceConnection = pika.BlockingConnection(pika.ConnectionParameters(
         host='localhost', credentials=pika.PlainCredentials(
-            username=config[profile]['write_username'],
-            password=config[profile]['write_password'])
+            username=rabbitmq_username,
+            password=rabbitmq_password)
         )
     )
     produceChannel = produceConnection.channel()  
@@ -37,7 +49,7 @@ def main():
 
     consumeChannel.basic_consume(queue=config[profile]['read_queue'], on_message_callback=callback, auto_ack=True)
 
-    print(f"Processor {profile} consuming {config[profile]['read_queue']} and writing to {config[profile]['write_queue']}")
+    print(f"[x] Processor {profile} consuming {config[profile]['read_queue']} and writing to {config[profile]['write_queue']}")
     consumeChannel.start_consuming()
 
 if __name__ == '__main__':
