@@ -6,15 +6,10 @@ from dotenv import load_dotenv
 def main():
     profile = sys.argv[1]
     
-    if not os.path.exists('.env'):
-        print("Please create a .env file (use the template)")
-        exit(1)
-    load_dotenv()
-
     rabbitmq_username = os.getenv('rabbitmq_username')
     rabbitmq_password = os.getenv('rabbitmq_password')
     if not rabbitmq_password or rabbitmq_username:
-        print("Please set rabbitmq_username and rabbitmq_password in .env")
+        print("Please set rabbitmq_username and rabbitmq_password env vars")
         exit(1)
 
     with open('config.yaml') as f:
