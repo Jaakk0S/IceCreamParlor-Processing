@@ -4,13 +4,17 @@ common:
 preparation:
   read_queue: placed_orders
   write_queue: prepared_orders
+  started_status: in_preparation
+  finished_status: prepared
   delay_min: 1
   delay_max: 30
   logfile: log/preparation.log
 
 delivery:
   read_queue: prepared_orders
-  write_queue: 
+  write_queue:
+  started_status: in_delivery
+  finished_status: delivered
   delay_min: 1
   delay_max: 30
   logfile: log/delivery.log
