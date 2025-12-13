@@ -21,6 +21,10 @@ def main():
         print("Please set rabbitmq_username and rabbitmq_password env vars")
         exit(1)
 
+    print("rabbitmq host: " + os.getenv('rabbitmq_host'))
+    print("rabbitmq port: " + os.getenv('rabbitmq_port'))
+    print("rabbitmq user: " + os.getenv('rabbitmq_username'))
+
     with open('config.yaml') as f:
         config = yaml.safe_load(f)
 
