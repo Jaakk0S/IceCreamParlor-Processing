@@ -5,3 +5,5 @@ ENV rabbitmq_password=password
 
 COPY config.yaml ./
 COPY process.py ./
+
+ENTRYPOINT ["python", "process.py"]

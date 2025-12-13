@@ -1,9 +1,9 @@
 #!/usr/bin/env python
 import pika, sys, os, yaml, logging, time, random
-//from pathlib import Path
 
 def main():
-    profile = sys.argv[1]
+    if len(sys.argv) >= 1:
+        profile = sys.argv[1]
     if profile is None:
         profile = os.environ['PROFILE']
     
@@ -53,7 +53,7 @@ def main():
         produceChannel.basic_publish(exchange='', routing_key=config[profile]['write_queue'], body=body)
         statusChannel.basic_publish(exchange='', routing_key=config[profile]['status_queue'], body={
             "id" : body.id,
-            "status"
+            "status": body.status
         })
 
     consumeChannel.basic_consume(queue=config[profile]['read_queue'], on_message_callback=callback, auto_ack=True)
