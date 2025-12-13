@@ -21,12 +21,16 @@ def main():
         print("Please set rabbitmq_username and rabbitmq_password env vars")
         exit(1)
 
+    print("profile: " + profile)
     print("rabbitmq host: " + os.getenv('rabbitmq_host'))
     print("rabbitmq port: " + os.getenv('rabbitmq_port'))
     print("rabbitmq user: " + os.getenv('rabbitmq_username'))
 
     with open('config.yaml') as f:
         config = yaml.safe_load(f)
+
+    do_read='read_queue' in config[profile]
+    do_write='write_queue' in config[profile]
 
     print("[x] Creating rabbitmq connections using given credentials...")
 
@@ -39,7 +43,7 @@ def main():
     consumeChannel = consumeConnection.channel()  
 
     produceConnection = pika.BlockingConnection(pika.ConnectionParameters(
-        host='localhost', credentials=pika.PlainCredentials(
+        host=os.getenv('rabbitmq_host'), port=os.getenv('rabbitmq_port'), credentials=pika.PlainCredentials(
             username=rabbitmq_username,
             password=rabbitmq_password)
         )
@@ -47,7 +51,7 @@ def main():
     produceChannel = produceConnection.channel()  
 
     statusConnection = pika.BlockingConnection(pika.ConnectionParameters(
-        host='localhost', credentials=pika.PlainCredentials(
+        host=os.getenv('rabbitmq_host'), port=os.getenv('rabbitmq_port'), credentials=pika.PlainCredentials(
             username=rabbitmq_username,
             password=rabbitmq_password)
         )
@@ -64,16 +68,17 @@ def main():
         logger.info(body)
         json = json.loads(body)
         time.sleep(random.randrange(config[profile]['delay_min'], config[profile]['delay_max']))
-        produceChannel.basic_publish(exchange='', routing_key=config[profile]['write_queue'], body=body)
+        if do_write:
+            produceChannel.basic_publish(exchange='', routing_key=config[profile]['write_queue'], body=body)
         statusChannel.basic_publish(exchange='', routing_key=config[profile]['status_queue'], body={
             "id" : body.id,
             "status": body.status
         })
 
-    consumeChannel.basic_consume(queue=config[profile]['read_queue'], on_message_callback=callback, auto_ack=True)
-
-    print(f"[x] Processor {profile} consuming {config[profile]['read_queue']} and writing to {config[profile]['write_queue']} and {config['common']['status_queue']}")
-    consumeChannel.start_consuming()
+    if do_read:
+        consumeChannel.basic_consume(queue=config[profile]['read_queue'], on_message_callback=callback, auto_ack=True)
+        print(f"[x] Processor {profile} consuming {config[profile]['read_queue']} and writing to {config[profile]['write_queue']} and {config['common']['status_queue']}")
+        consumeChannel.start_consuming()
 
 if __name__ == '__main__':
     try:
