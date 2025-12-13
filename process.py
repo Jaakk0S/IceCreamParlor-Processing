@@ -1,6 +1,9 @@
 #!/usr/bin/env python
 
 import pika, sys, os, yaml, logging, time, random
+from dotenv import load_dotenv
+
+load_dotenv()
 
 def main():
     profile = None

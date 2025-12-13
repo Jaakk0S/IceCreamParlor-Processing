@@ -1,11 +1,9 @@
 FROM python:3.9-alpine
 
-RUN pip install pika logging
-
-ENV rabbitmq_username=admin
-ENV rabbitmq_password=password
+RUN pip install pika dotenv
 
 COPY config.yaml ./
 COPY process.py ./
+COPY .env ./
 
 ENTRYPOINT ["python", "process.py"]
