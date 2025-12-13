@@ -1,6 +1,6 @@
 FROM python:3.9-alpine
 
-RUN pip install pika pyyaml dotenv
+RUN pip install pika pyyaml python-dotenv
 
 COPY config.yaml ./
 COPY process.py ./
