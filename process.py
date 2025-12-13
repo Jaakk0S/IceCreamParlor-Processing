@@ -10,7 +10,7 @@ def main():
     if len(sys.argv) > 1:
         profile = sys.argv[1]
     if profile is None and os.getenv('processing_profile') is not None:
-        profile = os.getenv['processing_profile']
+        profile = os.getenv('processing_profile')
     if profile is None:
         print("Please set either processing_profile environment variable or provide the profile name as the second argument")
         exit(1)
