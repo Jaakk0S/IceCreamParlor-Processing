@@ -27,7 +27,7 @@ def main():
     print("[x] Creating rabbitmq connections using given credentials...")
 
     consumeConnection = pika.BlockingConnection(pika.ConnectionParameters(
-        host='localhost', credentials=pika.PlainCredentials(
+        host=os.getenv('rabbitmq_host'), port=os.getenv('rabbitmq_port'), credentials=pika.PlainCredentials(
             username=rabbitmq_username,
             password=rabbitmq_password)
         )
