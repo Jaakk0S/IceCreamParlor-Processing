@@ -1,5 +1,7 @@
 FROM python:3.9-alpine
 
+RUN pip install pika logging
+
 ENV rabbitmq_username=admin
 ENV rabbitmq_password=password
 
