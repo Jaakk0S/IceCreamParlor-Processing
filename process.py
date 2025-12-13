@@ -1,20 +1,27 @@
 #!/usr/bin/env python
+
 import pika, sys, os, yaml, logging, time, random
 
 def main():
-    if len(sys.argv) >= 1:
+    profile = None
+    if len(sys.argv) > 1:
         profile = sys.argv[1]
+    if profile is None and os.getenv('processing_profile') is not None:
+        profile = os.getenv['processing_profile']
     if profile is None:
-        profile = os.environ['PROFILE']
+        print("Please set either processing_profile environment variable or provide the profile name as the second argument")
+        exit(1)
     
     rabbitmq_username = os.getenv('rabbitmq_username')
     rabbitmq_password = os.getenv('rabbitmq_password')
-    if not rabbitmq_password or rabbitmq_username:
+    if not rabbitmq_password or not rabbitmq_username:
         print("Please set rabbitmq_username and rabbitmq_password env vars")
         exit(1)
 
     with open('config.yaml') as f:
         config = yaml.safe_load(f)
+
+    print("[x] Creating rabbitmq connections using given credentials...")
 
     consumeConnection = pika.BlockingConnection(pika.ConnectionParameters(
         host='localhost', credentials=pika.PlainCredentials(
@@ -38,7 +45,7 @@ def main():
             password=rabbitmq_password)
         )
     )
-    statusChannel = produceConnection.channel()  
+    statusChannel = statusConnection.channel()  
 
     logger = logging.getLogger(profile)
     logdir = os.path.dirname(config[profile]['logfile'])
@@ -58,7 +65,7 @@ def main():
 
     consumeChannel.basic_consume(queue=config[profile]['read_queue'], on_message_callback=callback, auto_ack=True)
 
-    print(f"[x] Processor {profile} consuming {config[profile]['read_queue']} and writing to {config[profile]['write_queue']} and {config[profile]['status_queue']}")
+    print(f"[x] Processor {profile} consuming {config[profile]['read_queue']} and writing to {config[profile]['write_queue']} and {config['common']['status_queue']}")
     consumeChannel.start_consuming()
 
 if __name__ == '__main__':

@@ -7,4 +7,4 @@ This small Python microservice simulates order processing. It does the following
 
 ## Configuration
 
-Agent profiles (preparation, delivery...) are defined in *config.yaml*. The agent profile is selected by the first command-line argument, or the environment variable *PROFILE*
+Agent profiles (preparation, delivery...) are defined in *config.yaml*. The agent profile is selected by the first command-line argument, or the environment variable *processing_profile*
