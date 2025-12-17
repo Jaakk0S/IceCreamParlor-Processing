@@ -70,10 +70,7 @@ def main():
         time.sleep(random.randrange(config[profile]['delay_min'], config[profile]['delay_max']))
         if do_write:
             produceChannel.basic_publish(exchange='', routing_key=config[profile]['write_queue'], body=body)
-        statusChannel.basic_publish(exchange='', routing_key=config[profile]['status_queue'], body={
-            "id" : body.id,
-            "status": body.status
-        })
+        statusChannel.basic_publish(exchange='', routing_key=config[profile]['status_queue'], body="{ 'id' : '{0}', 'status': '{1}' }".format(body.id, body.status))
 
     if do_read:
         consumeChannel.basic_consume(queue=config[profile]['read_queue'], on_message_callback=callback, auto_ack=True)
