@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-import pika, sys, os, yaml, time, random
+import pika, sys, os, yaml, time, random, json
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -58,16 +58,16 @@ def main():
     )
     statusChannel = statusConnection.channel()  
 
-    def callback(ch, method, properties, body):
+    def consumer_callback(ch, method, properties, body):
         print(body, flush=True)
-        json = json.loads(body)
+        jsonObj = json.loads(body)
         time.sleep(random.randrange(config[profile]['delay_min'], config[profile]['delay_max']))
         if do_write:
             produceChannel.basic_publish(exchange='', routing_key=config[profile]['write_queue'], body=body)
-        statusChannel.basic_publish(exchange='', routing_key=config[profile]['status_queue'], body="{ 'id' : '{0}', 'status': '{1}' }".format(body.id, body.status))
+        statusChannel.basic_publish(exchange='', routing_key=config[profile]['status_queue'], body="{ 'id' : '{0}', 'status': '{1}' }".format(jsonObj.id, jsonObj.status))
 
     if do_read:
-        consumeChannel.basic_consume(queue=config[profile]['read_queue'], on_message_callback=callback, auto_ack=True)
+        consumeChannel.basic_consume(queue=config[profile]['read_queue'], on_message_callback=consumer_callback, auto_ack=True)
         print(f"[x] Processor {profile} consuming {config[profile]['read_queue']} and writing to {config[profile]['write_queue']} and {config['common']['status_queue']}", flush=True)
         consumeChannel.start_consuming()
 
