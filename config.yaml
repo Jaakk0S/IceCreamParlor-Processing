@@ -8,7 +8,6 @@ preparation:
   finished_status: prepared
   delay_min: 1
   delay_max: 30
-  logfile: log/preparation.log
 
 delivery:
   read_queue: prepared_orders
@@ -17,4 +16,3 @@ delivery:
   finished_status: delivered
   delay_min: 1
   delay_max: 30
-  logfile: log/delivery.log
