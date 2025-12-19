@@ -58,13 +58,13 @@ def main():
     )
     statusChannel = statusConnection.channel()  
 
-    def consumer_callback(ch, method, properties, body):
-        print(body, flush=True)
-        jsonObj = json.loads(body)
+    def consumer_callback(ch, method, properties, consumedObjectBody):
+        print(consumedObjectBody, flush=True)
+        jsonObj = json.loads(consumedObjectBody)
         time.sleep(random.randrange(config[profile]['delay_min'], config[profile]['delay_max']))
         if do_write:
-            produceChannel.basic_publish(exchange='', routing_key=config[profile]['write_queue'], body=body)
-        statusChannel.basic_publish(exchange='', routing_key=config[profile]['status_queue'], body="{ 'id' : '{0}', 'status': '{1}' }".format(jsonObj.id, jsonObj.status))
+            produceChannel.basic_publish(exchange='', routing_key=config[profile]['write_queue'], body=consumedObjectBody)
+        statusChannel.basic_publish(exchange='', routing_key=config['common']['status_queue'], body="{ 'id' : '{0}', 'status': '{1}' }".format(jsonObj.id, jsonObj.status))
 
     if do_read:
         consumeChannel.basic_consume(queue=config[profile]['read_queue'], on_message_callback=consumer_callback, auto_ack=True)
