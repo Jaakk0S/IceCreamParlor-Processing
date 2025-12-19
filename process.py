@@ -30,7 +30,7 @@ def main():
         config = yaml.safe_load(f)
 
     do_read  = str(config[profile]['read_queue']) != -1
-    do_write = str(config[profile]['write_queue']) != -1
+    do_write = profile != "delivery"
 
     print("[x] Creating rabbitmq connections using given credentials...", flush=True)
 
@@ -78,10 +78,9 @@ def main():
         print("Writing string: " + statusStr, flush=True)
         statusChannel.basic_publish(exchange='', routing_key=config['common']['status_queue'], body=statusStr)
 
-    if do_read:
-        consumeChannel.basic_consume(queue=config[profile]['read_queue'], on_message_callback=consumer_callback, auto_ack=True)
-        print(f"[x] Processor {profile} consuming {config[profile]['read_queue']} and writing to {config[profile]['write_queue']} and {config['common']['status_queue']}", flush=True)
-        consumeChannel.start_consuming()
+    consumeChannel.basic_consume(queue=config[profile]['read_queue'], on_message_callback=consumer_callback, auto_ack=True)
+    print(f"[x] Processor {profile} consuming {config[profile]['read_queue']} and writing to {config[profile]['write_queue']} and {config['common']['status_queue']}", flush=True)
+    consumeChannel.start_consuming()
 
 if __name__ == '__main__':
     try:
