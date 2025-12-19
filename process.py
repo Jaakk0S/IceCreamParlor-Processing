@@ -58,9 +58,9 @@ def main():
     )
     statusChannel = statusConnection.channel()  
 
-    def consumer_callback(ch, method, properties, consumedObjectBody):
+    def consumer_callback(ch: pika.channel.Channel, method: pika.spec.Basic.Deliver, properties: pika.spec.BasicProperties, consumedObjectBody: bytes):
         print(consumedObjectBody, flush=True)
-        jsonObj = json.loads(consumedObjectBody)
+        jsonObj = json.loads(consumedObjectBody.decode().replace("'", '"'))
         time.sleep(random.randrange(config[profile]['delay_min'], config[profile]['delay_max']))
         if do_write:
             produceChannel.basic_publish(exchange='', routing_key=config[profile]['write_queue'], body=consumedObjectBody)
