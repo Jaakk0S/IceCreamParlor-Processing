@@ -62,12 +62,12 @@ def main():
         jsonStr = consumedObjectBody.decode().replace("'", '"')
         print("Received string: " + jsonStr, flush=True)
         jsonObj = json.loads(jsonStr)
-        print("Received object id : " + jsonObj["id"], flush=True)
-        print("Received object status : " + jsonObj["status"], flush=True)
+        print("Received object id : " + str(jsonObj["id"]), flush=True)
+        print("Received object status : " + str(jsonObj["status"]), flush=True)
         #time.sleep(random.randrange(config[profile]['delay_min'], config[profile]['delay_max']))
         if do_write:
             produceChannel.basic_publish(exchange='', routing_key=config[profile]['write_queue'], body=consumedObjectBody)
-        statusStr = "{ 'id' : '{0}', 'status': '{1}' }".format(jsonObj["id"], jsonObj["status"])
+        statusStr = "{ 'id' : '{0}', 'status': '{1}' }".format(str(jsonObj["id"]), str(jsonObj["status"]))
         statusChannel.basic_publish(exchange='', routing_key=config['common']['status_queue'], body=statusStr)
 
     if do_read:
