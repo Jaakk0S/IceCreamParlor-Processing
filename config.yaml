@@ -6,6 +6,8 @@ preparation:
   write_queue: prepared_orders
   started_status: in_preparation
   finished_status: prepared
+  start_delay_min: 1
+  start_delay_max: 5
   delay_min: 1
   delay_max: 30
 
@@ -14,5 +16,7 @@ delivery:
   write_queue:
   started_status: in_delivery
   finished_status: delivered
+  start_delay_min: 1
+  start_delay_max: 5
   delay_min: 1
   delay_max: 30

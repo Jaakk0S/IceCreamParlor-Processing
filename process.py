@@ -29,8 +29,8 @@ def main():
     with open('config.yaml') as f:
         config = yaml.safe_load(f)
 
-    do_read='read_queue' in config[profile]
-    do_write='write_queue' in config[profile]
+    do_read  = str(config[profile]['read_queue']) != -1
+    do_write = str(config[profile]['write_queue']) != -1
 
     print("[x] Creating rabbitmq connections using given credentials...", flush=True)
 
@@ -62,11 +62,21 @@ def main():
         jsonStr = consumedObjectBody.decode().replace("'", '"')
         print("Received string: " + jsonStr, flush=True)
         jsonObj = json.loads(jsonStr)
-        #time.sleep(random.randrange(config[profile]['delay_min'], config[profile]['delay_max']))
+
+        time.sleep(random.randrange(config[profile]['start_delay_min'], config[profile]['start_delay_max']))
+
+        statusStr = json.dumps({ "id" : jsonObj["id"], "status": config[profile]['started_status'] })
+        print("Writing string: " + statusStr, flush=True)
+        statusChannel.basic_publish(exchange='', routing_key=config['common']['status_queue'], body=statusStr)
+
+        time.sleep(random.randrange(config[profile]['delay_min'], config[profile]['delay_max']))
+
         if do_write:
             produceChannel.basic_publish(exchange='', routing_key=config[profile]['write_queue'], body=consumedObjectBody)
-        status = { "id" : jsonObj["id"], "status": jsonObj["status"] }
-        statusChannel.basic_publish(exchange='', routing_key=config['common']['status_queue'], body=json.dumps(status))
+
+        statusStr = json.dumps({ "id" : jsonObj["id"], "status": config[profile]['finished_status'] })
+        print("Writing string: " + statusStr, flush=True)
+        statusChannel.basic_publish(exchange='', routing_key=config['common']['status_queue'], body=statusStr)
 
     if do_read:
         consumeChannel.basic_consume(queue=config[profile]['read_queue'], on_message_callback=consumer_callback, auto_ack=True)
