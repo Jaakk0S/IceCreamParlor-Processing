@@ -65,8 +65,8 @@ def main():
         #time.sleep(random.randrange(config[profile]['delay_min'], config[profile]['delay_max']))
         if do_write:
             produceChannel.basic_publish(exchange='', routing_key=config[profile]['write_queue'], body=consumedObjectBody)
-        statusStr = """{ "id" : "{0}", "status": "{1}" }""".format(str(jsonObj["id"]), str(jsonObj["status"]))
-        statusChannel.basic_publish(exchange='', routing_key=config['common']['status_queue'], body=statusStr)
+        status = { "id" : jsonObj["id"], "status": jsonObj["status"] }
+        statusChannel.basic_publish(exchange='', routing_key=config['common']['status_queue'], body=json.dumps(status))
 
     if do_read:
         consumeChannel.basic_consume(queue=config[profile]['read_queue'], on_message_callback=consumer_callback, auto_ack=True)
