@@ -37,8 +37,9 @@ def main():
     consumeConnection = pika.BlockingConnection(pika.ConnectionParameters(
         host=os.getenv('rabbitmq_host'), port=os.getenv('rabbitmq_port'), credentials=pika.PlainCredentials(
             username=rabbitmq_username,
-            password=rabbitmq_password)
-        )
+            password=rabbitmq_password
+            ), heartbeat=20
+        ),
     )
     consumeChannel = consumeConnection.channel()  
 
@@ -46,7 +47,7 @@ def main():
         host=os.getenv('rabbitmq_host'), port=os.getenv('rabbitmq_port'), credentials=pika.PlainCredentials(
             username=rabbitmq_username,
             password=rabbitmq_password)
-        )
+        ), heartbeat=20
     )
     produceChannel = produceConnection.channel()  
 
@@ -54,7 +55,7 @@ def main():
         host=os.getenv('rabbitmq_host'), port=os.getenv('rabbitmq_port'), credentials=pika.PlainCredentials(
             username=rabbitmq_username,
             password=rabbitmq_password)
-        )
+        ), heartbeat=20
     )
     statusChannel = statusConnection.channel()  
 
