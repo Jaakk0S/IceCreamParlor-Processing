@@ -34,30 +34,14 @@ def main():
 
     print("[x] Creating rabbitmq connections using given credentials...", flush=True)
 
-    consumeConnection = pika.BlockingConnection(pika.ConnectionParameters(
-        host=os.getenv('rabbitmq_host'), port=os.getenv('rabbitmq_port'), credentials=pika.PlainCredentials(
-            username=rabbitmq_username,
-            password=rabbitmq_password
-            ), heartbeat=20
-        ),
-    )
-    consumeChannel = consumeConnection.channel()  
-
-    produceConnection = pika.BlockingConnection(pika.ConnectionParameters(
-        host=os.getenv('rabbitmq_host'), port=os.getenv('rabbitmq_port'), credentials=pika.PlainCredentials(
-            username=rabbitmq_username,
-            password=rabbitmq_password)
-        ), heartbeat=20
-    )
-    produceChannel = produceConnection.channel()  
-
-    statusConnection = pika.BlockingConnection(pika.ConnectionParameters(
-        host=os.getenv('rabbitmq_host'), port=os.getenv('rabbitmq_port'), credentials=pika.PlainCredentials(
-            username=rabbitmq_username,
-            password=rabbitmq_password)
-        ), heartbeat=20
-    )
-    statusChannel = statusConnection.channel()  
+    pikaConnection = pika.BlockingConnection(pika.ConnectionParameters(
+        host=os.getenv('rabbitmq_host'),
+        port=os.getenv('rabbitmq_port'),
+        credentials=pika.PlainCredentials(username=rabbitmq_username, password=rabbitmq_password)
+    ))
+    consumeChannel = pikaConnection.channel()  
+    produceChannel = pikaConnection.channel()
+    statusChannel = pikaConnection.channel()  
 
     def consumer_callback(ch: pika.channel.Channel, method: pika.spec.Basic.Deliver, properties: pika.spec.BasicProperties, consumedObjectBody: bytes):
         jsonStr = consumedObjectBody.decode().replace("'", '"')
