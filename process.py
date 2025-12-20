@@ -50,7 +50,7 @@ def main():
 
         statusStr = json.dumps({ "id" : jsonObj["id"], "status": config[profile]['started_status'] })
         print("Writing string: " + statusStr, flush=True)
-        channel.basic_publish(exchange='status_routing_key', routing_key=config['common']['status_exchange'], body=statusStr)
+        channel.basic_publish(exchange=config['common']['status_routing_key'], routing_key=config['common']['status_exchange'], body=statusStr)
 
         time.sleep(random.randrange(config[profile]['delay_min'], config[profile]['delay_max']))
 
