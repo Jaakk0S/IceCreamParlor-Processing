@@ -39,9 +39,7 @@ def main():
         port=os.getenv('rabbitmq_port'),
         credentials=pika.PlainCredentials(username=rabbitmq_username, password=rabbitmq_password)
     ))
-    consumeChannel = pikaConnection.channel()  
-    produceChannel = pikaConnection.channel()
-    statusChannel = pikaConnection.channel()  
+    channel = pikaConnection.channel()  
 
     def consumer_callback(ch: pika.channel.Channel, method: pika.spec.Basic.Deliver, properties: pika.spec.BasicProperties, consumedObjectBody: bytes):
         jsonStr = consumedObjectBody.decode().replace("'", '"')
@@ -52,20 +50,20 @@ def main():
 
         statusStr = json.dumps({ "id" : jsonObj["id"], "status": config[profile]['started_status'] })
         print("Writing string: " + statusStr, flush=True)
-        statusChannel.basic_publish(exchange='', routing_key=config['common']['status_queue'], body=statusStr)
+        channel.basic_publish(exchange='status_routing_key', routing_key=config['common']['status_exchange'], body=statusStr)
 
         time.sleep(random.randrange(config[profile]['delay_min'], config[profile]['delay_max']))
 
         if do_write:
-            produceChannel.basic_publish(exchange='', routing_key=config[profile]['write_queue'], body=consumedObjectBody)
+            channel.basic_publish(exchange=config[profile]['write_routing_key'], routing_key=config[profile]['write_queue'], body=consumedObjectBody)
 
         statusStr = json.dumps({ "id" : jsonObj["id"], "status": config[profile]['finished_status'] })
         print("Writing string: " + statusStr, flush=True)
-        statusChannel.basic_publish(exchange='', routing_key=config['common']['status_queue'], body=statusStr)
+        channel.basic_publish(exchange=config[profile]['status_routing_key'], routing_key=config['common']['status_exchange'], body=statusStr)
 
-    consumeChannel.basic_consume(queue=config[profile]['read_queue'], on_message_callback=consumer_callback, auto_ack=True)
-    print(f"[x] Processor {profile} consuming {config[profile]['read_queue']} and writing to {config[profile]['write_queue']} and {config['common']['status_queue']}", flush=True)
-    consumeChannel.start_consuming()
+    channel.basic_consume(queue=config[profile]['read_queue'], on_message_callback=consumer_callback, auto_ack=True)
+    print(f"[x] Processor {profile} consuming {config[profile]['read_queue']} and writing to {config[profile]['write_exchange']} and {config['common']['status_exchange']}", flush=True)
+    channel.start_consuming()
 
 if __name__ == '__main__':
     try:

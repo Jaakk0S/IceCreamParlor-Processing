@@ -1,9 +1,11 @@
 common:
-  status_queue: order_status
+  status_exchange: order_status_exchange
+  status_routing_key: order_status
 
 preparation:
   read_queue: placed_orders
-  write_queue: prepared_orders
+  write_exchange: prepared_orders_exchange
+  write_routing_key: prepared_orders
   started_status: in_preparation
   finished_status: prepared
   start_delay_min: 1
@@ -13,7 +15,8 @@ preparation:
 
 delivery:
   read_queue: prepared_orders
-  write_queue:
+  write_exchange:
+  write_routing_key:
   started_status: in_delivery
   finished_status: delivered
   start_delay_min: 1
