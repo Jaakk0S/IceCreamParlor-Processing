@@ -55,7 +55,7 @@ def main():
         time.sleep(random.randrange(config[profile]['delay_min'], config[profile]['delay_max']))
 
         if do_write:
-            channel.basic_publish(exchange=config[profile]['write_routing_key'], routing_key=config[profile]['write_queue'], body=consumedObjectBody)
+            channel.basic_publish(exchange=config[profile]['write_routing_key'], routing_key=config[profile]['write_exchange'], body=consumedObjectBody)
 
         statusStr = json.dumps({ "id" : jsonObj["id"], "status": config[profile]['finished_status'] })
         print("Writing string: " + statusStr, flush=True)
