@@ -59,7 +59,7 @@ def main():
 
         statusStr = json.dumps({ "id" : jsonObj["id"], "status": config[profile]['finished_status'] })
         print("Writing string: " + statusStr, flush=True)
-        channel.basic_publish(exchange=config[profile]['status_exchange'], routing_key=config['common']['status_routing_key'], body=statusStr)
+        channel.basic_publish(exchange=config['common']['status_exchange'], routing_key=config['common']['status_routing_key'], body=statusStr)
 
     channel.basic_consume(queue=config[profile]['read_queue'], on_message_callback=consumer_callback, auto_ack=True)
     print(f"[x] Processor {profile} consuming {config[profile]['read_queue']} and writing to {config[profile]['write_exchange']} and {config['common']['status_exchange']}", flush=True)
